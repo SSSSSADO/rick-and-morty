@@ -1,4 +1,5 @@
 import requests
+import time
 
 from characters.models import Character
 
@@ -11,7 +12,14 @@ def scrape_characters() -> list[Character]:
     characters = []
 
     while next_url is not None:
-        characters_response = requests.get(URL).json()
+        response = requests.get(next_url)
+
+        if response.status_code == 429:
+            time.sleep(5)
+            continue
+
+        response.raise_for_status()
+        characters_response = response.json()
 
         for character in characters_response["results"]:
             characters.append(
