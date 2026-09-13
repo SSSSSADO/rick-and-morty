@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 import requests
 import time
 
@@ -39,8 +40,12 @@ def scrape_characters() -> list[Character]:
 
 
 def save_characters(characters: list[Character]) -> None:
+    """New characters created only if not exist with 'api_id' in DB"""
     for character in characters:
-        character.save()
+        try:
+            character.save()
+        except IntegrityError:
+            print(f"Character with 'api_id': {character.api_id} already exist in DB.")
 
 
 def sync_characters_with_api() -> None:
